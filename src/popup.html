@@ -1,19 +1,20 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <title>Chrome Regex Search</title>
+    <title>Chrome Regex Search Colorful</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <style type="text/css">
       a:link, a:visited {
         display: block;
         width: 2em;  
         padding: 0.2em;
+        margin-left: 1px;
         line-height: 1.6;
         background-color: #f2f2f2;
         border: 1px solid transparent;
-         border-color: #aaa;
+        border-color: #aaa;
         color: #000;
-        text-decoration: bold;
+        text-decoration: none;
         text-align: center;
         float: right;
         -webkit-box-shadow: inset 0 0 30px #fff;
@@ -48,22 +49,23 @@
         display: flex;
       }
       #inputRegex {
-        width: 22em;
+        width: 30em;
         border-radius: 2px;
         padding-right: 5em;
+        margin-right: .5em;
        -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .125);
                box-shadow: 0 1px 1px rgba(0, 0, 0, .125);
       }
       #numResults {
-        position: absolute;
-        top: 0.25em;
-        right: 14.5em;
-        min-width: 4em;
-        max-width: 5em;
-        overflow:auto;
-        white-space: nowrap;
-        height: 1.6;
-        font-size: 10pt;
+          color: red;
+          min-width: 4em;
+          white-space: nowrap;
+          font-size: 10pt;
+          float: right;
+          height: 1.8em;
+          line-height: 2em;
+          text-align: right;
+          padding-right: 0.5em;
       }
       #history {
         margin: 4px 2px;
@@ -72,11 +74,13 @@
       .historyDeleteEntry {
         color: #c00;
         cursor: pointer;
-        margin-right: 4px;
-        font-size: 0.8em;
+        margin-right: 4px;;
+        font-size: 1em;
+        box-shadow: 0 0 1px red;
+        padding: 0 3px;
       }
       .historyLink {
-        color: #09d;
+        color: #0070ff;
         cursor: pointer;
       }
       .historyIsEmptyMessage {
@@ -103,17 +107,20 @@
   </head>
   <body>
     <div class="flexContainer">
-      <input id="inputRegex" type="text" name="inputRegex"></input><span id="numResults"></span>
+      <input id="inputRegex" type="text" name="inputRegex"/>
       <a href="#" id="prev" type="button" title="Previous Match"><i class="fa fa-angle-up"></i></a>
       <a href="#" id="next" type="button" title="Next Match"><i class="fa fa-angle-down"></i></a>
-      <a href="#" id="insensitive" type="button" title="Case Insensitive"><i class="fa fa-info"></i></a>
-      <a href="#" id="copy-to-clipboard" type="button" title="Copy matches to clipboard"><i class="fa fa-copy"></i></a>
-      <a href="#" id="clear" type="button" title="Clear"><i class="fa fa-trash-o"></i></a>
-      <a href="#" class="selected" id="show-history" type="button" title="History"><i class="fa fa-history"></i></a>
     </div>
-    <div id="history">
+    <div id="history"></div>
+    <div id="error" class="error-chrome-regex"></div>
+    <div id="operates" class="operates">
+        <a href="#" id="insensitive" type="button" title="Case Insensitive"><i class="fa fa-info"></i></a>
+        <a href="#" id="copy-to-clipboard" type="button" title="Copy matches to clipboard"><i class="fa fa-copy"></i></a>
+        <a href="#" id="clear" type="button" title="Clear"><i class="fa fa-trash-o"></i></a>
+        <a href="#" class="selected" id="show-history" type="button" title="History"><i class="fa fa-history"></i></a>
+        <a href="#" id="unescape" type="button" title="Un Escape URI Charactors"><i class="fa fa-key"></i></a>
+        <div id="numResults"></div>
     </div>
-    <span id="error" class="error-chrome-regex"></span>
   </body>
   <script type="text/javascript" src="js/popup.js"></script>
 </html>
