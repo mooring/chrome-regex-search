@@ -1,57 +1,51 @@
 {
-  "manifest_version": 2,
-
-  "name": "Chrome Regex Search",
-  "description": "An extension for Regex Search in lieu of Chrome's CTRL+F",
-  "version": "1.0.8",
-  "icons": {
-    "16": "icons/icons_16.png",
-    "24": "icons/icons_24.png",
-    "32": "icons/icons_32.png",
-    "48": "icons/icons_48.png",
-    "64": "icons/icons_64.png",
-    "72": "icons/icons_72.png",
-    "96": "icons/icons_96.png",
-    "128": "icons/icons_128.png",
-    "256": "icons/icons_256.png"
-  },
-  "browser_action": {
-    "default_icon": {
+   "background": {
+      "persistent": true,
+      "scripts": [ "js/background.js" ]
+   },
+   "browser_action": {
+      "default_icon": {
+         "128": "icons/icons_128.png",
+         "16": "icons/icons_16.png",
+         "24": "icons/icons_24.png",
+         "256": "icons/icons_256.png",
+         "32": "icons/icons_32.png",
+         "48": "icons/icons_48.png",
+         "64": "icons/icons_64.png",
+         "72": "icons/icons_72.png",
+         "96": "icons/icons_96.png"
+      },
+      "default_popup": "popup.html"
+   },
+   "commands": {
+      "_execute_browser_action": {
+         "suggested_key": {
+            "chromeos": "Ctrl+Shift+F",
+            "linux": "Ctrl+Shift+F",
+            "mac": "Command+Shift+F",
+            "windows": "Ctrl+Shift+F"
+         }
+      }
+   },
+   "content_scripts": [ {
+      "js": [ "js/content.js" ],
+      "matches": [ "http://*/*", "https://*/*", "file://*/*" ]
+   } ],
+   "description": "Colorful Search Results with RegExp",
+   "icons": {
+      "128": "icons/icons_128.png",
       "16": "icons/icons_16.png",
       "24": "icons/icons_24.png",
+      "256": "icons/icons_256.png",
       "32": "icons/icons_32.png",
       "48": "icons/icons_48.png",
       "64": "icons/icons_64.png",
       "72": "icons/icons_72.png",
-      "96": "icons/icons_96.png",
-      "128": "icons/icons_128.png",
-      "256": "icons/icons_256.png"
-    },
-    "default_popup": "popup.html"
-  },
-  "permissions": [
-    "activeTab",
-    "storage"
-  ],
-  "background": {
-    "scripts": ["js/background.js"],
-    "persistent": true
-  },
-  "content_scripts": [
-    {
-      "matches": [ "http://*/*", "https://*/*", "file://*/*" ],
-      "js": [ "js/content.js" ]
-    }
-  ],
-  "commands": {
-    "_execute_browser_action": {
-      "suggested_key": {
-        "windows": "Ctrl+Shift+F",
-        "mac": "Command+Shift+F",
-        "chromeos": "Ctrl+Shift+F",
-        "linux": "Ctrl+Shift+F"
-      }
-    }
-  },
-  "options_page": "options.html"
+      "96": "icons/icons_96.png"
+   },
+   "manifest_version": 2,
+   "name": "Colorful Search Results with RegExp",
+   "options_page": "options.html",
+   "permissions": [ "activeTab", "storage" ],
+   "version": "2.0.1"
 }
