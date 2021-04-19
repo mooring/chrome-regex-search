@@ -150,7 +150,7 @@ function updateHistoryDiv() {
                 clearButton.textContent = CLEAR_ALL_HISTORY_TEXT;
                 clearButton.className = 'clearHistoryButton';
                 clearButton.addEventListener('click', clearSearchHistory);
-                operateDiv.appendChild(clearButton);
+                operateDiv.insertBefore(clearButton,operateDiv.children[5]);
             }
         }
     }

@@ -77,7 +77,6 @@ function initSearchInfo(pattern) {
 /* add body dom change observe */
 function watchBodyChange(mutationsList, observer){
     if(!searchInfo || !searchInfo.regexString || searchInfo.searching){
-        console.log(78)
         return;
     }
     for(const mutation of mutationsList) {
@@ -93,7 +92,6 @@ function watchBodyChange(mutationsList, observer){
                     ){
                         var regex = validateRegex(searchInfo.regexString);
                         if(regex){
-                            console.log(87, regex, node.nodeName, HIGHLIGHT_TAG)
                             node.touched = true;
                             highlight(regex, searchInfo.maxResults, node);
                             if(searchInfo.unescapeURL){
@@ -150,7 +148,6 @@ function highlight(regex, maxResults, highlightNode) {
                 var addcnt = 1;
                 if (isurl && matchedText.replace(URL_REGEX, '').length == '') {
                     color = matchKeys[ltext] = ['inherit', 'inherit']
-                    addcnt = 0;
                 }
                 var color = matchKeys[ltext] ? matchKeys[ltext] :
                     matchKeys[ltext] = HIGH_BG_COLORS[cnt++ % HIGH_BG_COLORS.length];
@@ -158,10 +155,11 @@ function highlight(regex, maxResults, highlightNode) {
                 spanNode.className = HIGHLIGHT_CLASS;
                 spanNode.style.backgroundColor = color[0]; // highlightColor;
                 spanNode.style.color = color[1];
-                spanNode.style.padding = '3px';
+                if(!isurl){spanNode.style.padding = '3px';}
                 spanNode.colors = color;
                 spanNode.appendChild(matchedTextNode.cloneNode(true));
                 if (isurl) {
+                    addcnt = 0;
                     try {
                         spanNode.textContent = decodeURIComponent(spanNode.textContent)
                     } catch (e) {

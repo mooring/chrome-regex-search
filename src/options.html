@@ -47,20 +47,40 @@
         font-size: 16px;
         color: inherit;
       }
+      .default-colors ul{
+          list-style:none;
+          display: flex!important;
+          align-items: center;
+          flex-wrap: wrap;
+      }
+      .default-colors ul li{
+          display: block;
+          min-width: 10em;
+          max-width: 10em;
+          height: 2em;
+          line-height: 2em;
+          margin-bottom: .5em;
+          margin-right: 0.5em;
+          font-size: 1.2em;
+          text-align: center;
+      }
     </style>
   </head>
   <body id="options">
     <div class = "panel panel-default">
-      <div class="panel-heading"><h3 class="panel-title">Chrome Regex Search Settings</h3></div>
+      <div class="panel-heading"><h3 class="panel-title">Colorful Search Result using Regex Settings</h3></div>
       <div class="panel-body">
         <div class="panel panel-default">
-          <div class="panel-heading">What colors should be used to highlight regex matches on the web page?</div>
+          <div class="panel-heading">Default highlight Colors</div>
           <div class="panel-body">
-            <p><input id="highlightColor" type="color" /> <label for="highlightColor">Highlight color</label></p>
-            <p><input id="selectedColor" type="color" /> <label for="selectedColor">Selected color</label></p>
-            <p><input id="textColor" type="color" /> <label for="colorText">Text color</label></p>
-            <p class="example-chrome-regex">This is <span id = "exampleHighlighted"> highlighted</span> text.</p>
-            <p class="example-chrome-regex">This is <span id = "exampleSelected"> selected</span> text.</p>
+            <p style="display:none"><input id="highlightColor" type="color" /> <label for="highlightColor">Highlight color</label></p>
+            <p style="display:none"><input id="selectedColor" type="color" /> <label for="selectedColor">Selected color</label></p>
+            <p style="display:none"><input id="textColor" type="color" /> <label for="colorText">Text color</label></p>
+            <p style="display:none" class="example-chrome-regex">This is <span id = "exampleHighlighted"> highlighted</span> text.</p>
+            <p style="display:none" class="example-chrome-regex">This is <span id = "exampleSelected"> selected</span> text.</p>
+            <div class="default-colors">
+                <ul id="defaultColors"></ul>
+            </div>
           </div>
         </div>
         <div class="panel panel-default">

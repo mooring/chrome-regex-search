@@ -8,6 +8,27 @@ var WHITE_COLOR = '#ffffff';
 var ERROR_COLOR = '#ff8989';
 var GOOD_COLOR = '#89ff89';
 var DEFAULT_INSTANT_RESULTS = true;
+const HIGH_BG_COLORS = [
+    ['#f23321', '#ffffff'],
+    ['#f3b27a', '#ffffff'],
+    ['#5d7430', '#ffffff'],
+    ['#742c1e', '#ffffff'],
+    ['#da5fa2', '#ffffff'],
+    ['#cac197', '#ffffff'],
+    ['#52422a', '#ffffff'],
+    ['#34514d', '#ffffff'],
+    ['#a51709', '#ffffff'],
+    ['#7b99bf', '#ffffff'],
+    ['#024a59', '#ffffff'],
+    ['#a67799', '#ffffff'],
+    ['#0e8c8b', '#ffffff'],
+    ['#d98f4e', '#ffffff'],
+    ['#381720', '#ffffff'],
+    ['#2f2c37', '#ffffff'],
+    ['#18283f', '#ffffff'],
+    ['#3c4e72', '#ffffff'],
+    ['#1f0f02', '#ffffff'],
+];
 /*** CONSTANTS ***/
 
 /*** FUNCTIONS ***/
@@ -88,7 +109,13 @@ function loadOptions() {
     }
   );
 }
-
+function renderDefaultColors(){
+    let list = [];
+    HIGH_BG_COLORS.forEach(i=>{
+        list.push(`<li style="background-color:${i[0]};color:${i[1]}">${i[0]}</li>`)
+    })
+    document.getElementById('defaultColors').innerHTML = list.join('')
+}
 /* Restore default configuration */
 function restoreDefaults() {
   chrome.storage.local.clear(function() {
@@ -101,7 +128,7 @@ function restoreDefaults() {
 /*** LISTENERS ***/
 document.addEventListener('DOMContentLoaded', function() {
   loadOptions();
-
+  renderDefaultColors();
   document.getElementById('highlightColor').addEventListener('change', function() {
     document.getElementById('exampleHighlighted').style.backgroundColor = document.getElementById('highlightColor').value;
     saveOptions();
