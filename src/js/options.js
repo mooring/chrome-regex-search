@@ -1,5 +1,5 @@
 /*** CONSTANTS ***/
-var DEFAULT_MAX_RESULTS = 500;
+var DEFAULT_MAX_RESULTS = 10000;
 var DEFAULT_HIGHLIGHT_COLOR = '#ffff00';
 var DEFAULT_SELECTED_COLOR = '#ff9900';
 var DEFAULT_TEXT_COLOR = '#000000';
@@ -72,7 +72,8 @@ function loadOptions() {
     'textColor' : DEFAULT_TEXT_COLOR,
     'maxResults' : DEFAULT_MAX_RESULTS,
     'instantResults' : DEFAULT_INSTANT_RESULTS,
-    'maxHistoryLength' : DEFAULT_MAX_HISTORY_LENGTH }, 
+    'maxHistoryLength' : DEFAULT_MAX_HISTORY_LENGTH,
+    }, 
     function(result) {
       document.getElementById('highlightColor').value = result.highlightColor;
       document.getElementById('exampleHighlighted').style.backgroundColor = result.highlightColor;

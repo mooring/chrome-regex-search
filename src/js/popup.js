@@ -7,9 +7,12 @@ var SHOW_HISTORY_TITLE = "Show search history";
 var HIDE_HISTORY_TITLE = "Hide search history";
 var ENABLE_CASE_INSENSITIVE_TITLE = "Enable case insensitive search";
 var DISABLE_CASE_INSENSITIVE_TITLE = "Disable case insensitive search";
+var ENABLE_UNESCAPE_TITLE = 'Enable unescape url components'
+var DISABLE_UNESCAPE_TITLE = 'Disable unescape url components'
 var HISTORY_IS_EMPTY_TEXT = "Search history is empty.";
 var CLEAR_ALL_HISTORY_TEXT = "Clear History";
 var DEFAULT_CASE_INSENSITIVE = false;
+var DEFAULT_UNESCAPE_URL = false;
 var MAX_HISTORY_LENGTH = 10000;
 /*** CONSTANTS ***/
 
@@ -197,18 +200,38 @@ function setCaseInsensitiveElement() {
         });
 
 }
+function setUnEscapeElement() {
+    var caseInsensitive = chrome.storage.local.get({
+            'unescapeURL': DEFAULT_UNESCAPE_URL
+        },
+        function(result) {
+            document.getElementById('unescape').title = result.unescapeURL ? DISABLE_UNESCAPE_TITLE : ENABLE_UNESCAPE_TITLE;
+            if (result.unescapeURL) {
+                document.getElementById('unescape').className = 'selected';
+            } else {
+                document.getElementById('unescape').className = '';
+            }
+        });
+
+}
 
 function toggleCaseInsensitive() {
     var caseInsensitive = document.getElementById('insensitive').className == 'selected';
     document.getElementById('insensitive').title = caseInsensitive ? ENABLE_CASE_INSENSITIVE_TITLE : DISABLE_CASE_INSENSITIVE_TITLE;
-    if (caseInsensitive) {
-        document.getElementById('insensitive').className = '';
-    } else {
-        document.getElementById('insensitive').className = 'selected';
-    }
+    document.getElementById('insensitive').className = caseInsensitive ? '' : 'selected';
     sentInput = false;
     chrome.storage.local.set({
         caseInsensitive: !caseInsensitive
+    });
+    passInputToContentScript(true);
+}
+function toggleUnescapeURL() {
+    var unescapeURL = document.getElementById('unescape').className == 'selected';
+    document.getElementById('unescape').title = unescapeURL ? ENABLE_UNESCAPE_TITLE : DISABLE_UNESCAPE_TITLE;
+    document.getElementById('unescape').className =  unescapeURL ? '' : 'selected';
+    sentInput = false;
+    chrome.storage.local.set({
+        unescapeURL: !unescapeURL
     });
     passInputToContentScript(true);
 }
@@ -250,6 +273,10 @@ document.getElementById('show-history').addEventListener('click', function() {
 document.getElementById('insensitive').addEventListener('click', function() {
     toggleCaseInsensitive();
 });
+document.getElementById('unescape').addEventListener('click', function() {
+    toggleUnescapeURL();
+});
+
 
 document.getElementById('copy-to-clipboard').addEventListener('click', function() {
     chrome.tabs.query({
@@ -378,13 +405,14 @@ window.setTimeout(
     function() {
         document.getElementById('inputRegex').select();
     }, 0);
-//Thanks to http://stackoverflow.com/questions/480735#comment40578284_14573552
+//Thanks to http://stackoverflow.com/questions/480735#comment40578284_14573552X
 
-var makeVisible = document.getElementById('history').style.display == 'none';
-setHistoryVisibility(makeVisible);
-chrome.storage.local.set({
-    isSearchHistoryVisible: makeVisible
-});
+    var makeVisible = document.getElementById('history').style.display == 'none';
+    setHistoryVisibility(makeVisible);
+    chrome.storage.local.set({
+        isSearchHistoryVisible: makeVisible
+    });
 
 setCaseInsensitiveElement();
+setUnEscapeElement();
 /*** INIT ***/

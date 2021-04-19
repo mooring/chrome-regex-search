@@ -1,16 +1,17 @@
 /*** CONSTANTS ***/
-var ELEMENT_NODE_TYPE = 1;
-var TEXT_NODE_TYPE = 3;
-var UNEXPANDABLE = /(script|style|svg|audio|canvas|figure|video|select|input|textarea)/i;
-var HIGHLIGHT_TAG = 'highlight-tag';
-var HIGHLIGHT_CLASS = 'highlighted';
-var SELECTED_CLASS = 'selected';
-var DEFAULT_MAX_RESULTS = 500;
-var DEFAULT_HIGHLIGHT_COLOR = '#ffff00';
-var DEFAULT_SELECTED_COLOR = '#ff9900';
-var DEFAULT_TEXT_COLOR = '#000000';
-var DEFAULT_CASE_INSENSITIVE = false;
-var HIGH_BG_COLORS = [
+const ELEMENT_NODE_TYPE = 1;
+const TEXT_NODE_TYPE  = 3;
+const UNEXPANDABLE = /(script|style|svg|audio|canvas|figure|video|select|input|textarea)/i;
+const HIGHLIGHT_TAG = 'highlight-tag';
+const HIGHLIGHT_CLASS = 'highlighted';
+const SELECTED_CLASS = 'selected';
+const DEFAULT_MAX_RESULTS = 500;
+const DEFAULT_HIGHLIGHT_COLOR = '#ffff00';
+const DEFAULT_SELECTED_COLOR = '#ff9900';
+const DEFAULT_TEXT_COLOR = '#000000';
+const DEFAULT_CASE_INSENSITIVE = false;
+const DEFAULT_UNESCAPE_URL = false;
+const HIGH_BG_COLORS = [
     ['#f23321', '#ffffff'],
     ['#f3b27a', '#ffffff'],
     ['#5d7430', '#ffffff'],
@@ -31,12 +32,14 @@ var HIGH_BG_COLORS = [
     ['#3c4e72', '#ffffff'],
     ['#1f0f02', '#ffffff'],
 ];
-
+const URL_REGEX = /(%[A-F0-9]{2})/ig;
+const CONFIG = { attributes: false, childList: true, subtree: true }
 /*** CONSTANTS ***/
 
 /*** VARIABLES ***/
-var searchInfo;
-var matchKeys = {};
+let searchInfo;
+let matchKeys = {};
+let observer = new MutationObserver(watchBodyChange);
 /*** VARIABLES ***/
 
 /*** LIBRARY FUNCTIONS ***/
@@ -49,7 +52,6 @@ Element.prototype.visible = function() {
 }
 /*** LIBRARY FUNCTIONS ***/
 
-
 /*** FUNCTIONS ***/
 /* Initialize search information for this tab */
 function initSearchInfo(pattern) {
@@ -59,6 +61,52 @@ function initSearchInfo(pattern) {
         selectedIndex: 0,
         highlightedNodes: [],
         length: 0
+    }
+    chrome.storage.local.get({
+            'maxResults': DEFAULT_MAX_RESULTS,
+            'unescapeURL': DEFAULT_UNESCAPE_URL
+        },
+        function(result) {
+            searchInfo.maxResults = result.maxResults;
+            searchInfo.unescapeURL = result.unescapeURL;
+            observer.observe(document.body, CONFIG);
+        }
+    );
+}
+/*** FUNCTIONS ***/
+/* add body dom change observe */
+function watchBodyChange(mutationsList, observer){
+    if(!searchInfo || !searchInfo.regexString || searchInfo.searching){
+        console.log(78)
+        return;
+    }
+    for(const mutation of mutationsList) {
+        if (mutation.type === 'childList') {
+            if(mutation.addedNodes && mutation.addedNodes.length > 0){
+                for(var i=0,il=mutation.addedNodes.length; i<il; i++){
+                    let node = mutation.addedNodes[i];
+                    if(
+                        !node.touched 
+                        && node.innerHTML && node.innerHTML.length > 0 
+                        && node.nodeName.toLowerCase() != HIGHLIGHT_TAG
+                        && !node.innerHTML.includes(HIGHLIGHT_TAG)
+                    ){
+                        var regex = validateRegex(searchInfo.regexString);
+                        if(regex){
+                            console.log(87, regex, node.nodeName, HIGHLIGHT_TAG)
+                            node.touched = true;
+                            highlight(regex, searchInfo.maxResults, node);
+                            if(searchInfo.unescapeURL){
+                                highlight(URL_REGEX, searchInfo.maxResults, node)
+                            }
+                        }
+                    }
+                }
+            }
+            
+        }else{
+            console.log('not childList', mutation)
+        }
     }
 }
 
@@ -85,9 +133,8 @@ function isExpandable(node) {
 }
 
 /* Highlight all text that matches regex */
-function highlight(regex, highlightColor, selectedColor, textColor, maxResults) {
+function highlight(regex, maxResults, highlightNode) {
     let cnt = 0;
-
     function highlightRecursive(node) {
         if (searchInfo.length >= maxResults) {
             return;
@@ -99,9 +146,9 @@ function highlight(regex, highlightColor, selectedColor, textColor, maxResults) 
                 var matchedTextNode = node.splitText(index);
                 var spanNode = document.createElement(HIGHLIGHT_TAG);
                 var ltext = matchedText.toLowerCase();
-                var isurl = /(%[\w\d]{2})+/i.test(matchedText);
+                var isurl = URL_REGEX.test(matchedText);
                 var addcnt = 1;
-                if (isurl && matchedText.replace(/%[\w\d]{2}/ig, '').length == '') {
+                if (isurl && matchedText.replace(URL_REGEX, '').length == '') {
                     color = matchKeys[ltext] = ['inherit', 'inherit']
                     addcnt = 0;
                 }
@@ -135,16 +182,16 @@ function highlight(regex, highlightColor, selectedColor, textColor, maxResults) 
         }
         return 0;
     }
-    highlightRecursive(document.getElementsByTagName('body')[0]);
+    highlightRecursive(highlightNode || document.getElementsByTagName('body')[0]);
 };
 
 /* Remove all highlights from page */
 function removeHighlight() {
     while (node = document.body.querySelector(HIGHLIGHT_TAG + '.' + HIGHLIGHT_CLASS)) {
-        node.outerHTML = node.innerHTML;
+        node.replaceWith(node.firstChild);
     }
     while (node = document.body.querySelector(HIGHLIGHT_TAG + '.' + SELECTED_CLASS)) {
-        node.outerHTML = node.innerHTML;
+        node.replaceWith(node.firstChild);
     }
 };
 
@@ -215,23 +262,29 @@ function validateRegex(pattern) {
 }
 
 /* Find and highlight regex matches in web page from a given regex string or pattern */
-function search(regexString, configurationChanged) {
+function search(regexString, configurationChanged, highlightNode, keepHighlight) {
     var regex = validateRegex(regexString);
     if (regex && regexString != '' && (configurationChanged || regexString !== searchInfo.regexString)) { // new valid regex string
-        removeHighlight();
+        if(!keepHighlight){removeHighlight();}
         chrome.storage.local.get({
                 'highlightColor': DEFAULT_HIGHLIGHT_COLOR,
                 'selectedColor': DEFAULT_SELECTED_COLOR,
                 'textColor': DEFAULT_TEXT_COLOR,
                 'maxResults': DEFAULT_MAX_RESULTS,
-                'caseInsensitive': DEFAULT_CASE_INSENSITIVE
+                'caseInsensitive': DEFAULT_CASE_INSENSITIVE,
+                'unescapeURL': DEFAULT_UNESCAPE_URL
             },
             function(result) {
                 initSearchInfo(regexString);
                 if (result.caseInsensitive) {
                     regex = new RegExp(regexString, 'i');
                 }
-                highlight(regex, result.highlightColor, result.selectedColor, result.textColor, result.maxResults);
+                searchInfo.searching = true;
+                highlight(regex, result.maxResults, highlightNode);
+                if(searchInfo.unescapeURL){
+                    highlight(URL_REGEX, result.maxResults, highlightNode);
+                }
+                searchInfo.searching = false;
                 selectFirstNode(result.selectedColor);
                 returnSearchInfo('search');
             }
@@ -239,7 +292,8 @@ function search(regexString, configurationChanged) {
     } else if (regex && regexString != '' && regexString === searchInfo.regexString) { // elements are already highlighted
         chrome.storage.local.get({
                 'highlightColor': DEFAULT_HIGHLIGHT_COLOR,
-                'selectedColor': DEFAULT_SELECTED_COLOR
+                'selectedColor': DEFAULT_SELECTED_COLOR,
+                'unescapeURL': DEFAULT_UNESCAPE_URL
             },
             function(result) {
                 selectNextNode(result.highlightColor, result.selectedColor);
@@ -263,7 +317,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     else if ('selectNextNode' == request.message) {
         chrome.storage.local.get({
                 'highlightColor': DEFAULT_HIGHLIGHT_COLOR,
-                'selectedColor': DEFAULT_SELECTED_COLOR
+                'selectedColor': DEFAULT_SELECTED_COLOR,
+                'unescapeURL': DEFAULT_UNESCAPE_URL
             },
             function(result) {
                 selectNextNode(result.highlightColor, result.selectedColor);
@@ -274,7 +329,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     else if ('selectPrevNode' == request.message) {
         chrome.storage.local.get({
                 'highlightColor': DEFAULT_HIGHLIGHT_COLOR,
-                'selectedColor': DEFAULT_SELECTED_COLOR
+                'selectedColor': DEFAULT_SELECTED_COLOR,
+                'unescapeURL': DEFAULT_UNESCAPE_URL
             },
             function(result) {
                 selectPrevNode(result.highlightColor, result.selectedColor);
@@ -301,7 +357,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         });
         returnSearchInfo('getSearchInfo');
     }else if('unescape' == request.message){
-        search('(%[\\w\\d]{2})+', request.configurationChanged);
+        search('(%[\\w\\d]{2})+', true, false, true);
     }
 });
 /*** LISTENERS ***/
