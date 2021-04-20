@@ -60,11 +60,13 @@ function initSearchInfo(pattern) {
         regexString: pattern,
         selectedIndex: 0,
         highlightedNodes: [],
+        maxResults: DEFAULT_MAX_RESULTS,
+        unescapeURL: DEFAULT_UNESCAPE_URL,
         length: 0
     }
     chrome.storage.local.get({
-            'maxResults': DEFAULT_MAX_RESULTS,
-            'unescapeURL': DEFAULT_UNESCAPE_URL
+            maxResults: DEFAULT_MAX_RESULTS,
+            unescapeURL: DEFAULT_UNESCAPE_URL
         },
         function(result) {
             searchInfo.maxResults = result.maxResults;
@@ -85,10 +87,10 @@ function watchBodyChange(mutationsList, observer){
                 for(var i=0,il=mutation.addedNodes.length; i<il; i++){
                     let node = mutation.addedNodes[i];
                     if(
-                        !node.touched 
-                        && node.innerHTML && node.innerHTML.length > 0 
+                        !node.touched
+                        && node.innerHTML && node.innerHTML.length > 0
                         && node.nodeName.toLowerCase() != HIGHLIGHT_TAG
-                        && !node.innerHTML.includes(HIGHLIGHT_TAG)
+                        && !(node.innerHTML.includes(HIGHLIGHT_TAG))
                     ){
                         var regex = validateRegex(searchInfo.regexString);
                         if(regex){
@@ -101,7 +103,7 @@ function watchBodyChange(mutationsList, observer){
                     }
                 }
             }
-            
+
         }else{
             console.log('not childList', mutation)
         }
@@ -111,11 +113,11 @@ function watchBodyChange(mutationsList, observer){
 /* Send message with search information for this tab */
 function returnSearchInfo(cause) {
     chrome.runtime.sendMessage({
-        'message': 'returnSearchInfo',
-        'regexString': searchInfo.regexString,
-        'currentSelection': searchInfo.selectedIndex,
-        'numResults': searchInfo.length,
-        'cause': cause
+        message: 'returnSearchInfo',
+        regexString: searchInfo.regexString,
+        currentSelection: searchInfo.selectedIndex,
+        numResults: searchInfo.length,
+        cause: cause
     });
 }
 
@@ -135,6 +137,7 @@ function highlight(regex, maxResults, highlightNode) {
     let cnt = 0;
     function highlightRecursive(node) {
         if (searchInfo.length >= maxResults) {
+            console.log(140, 'exceed max result')
             return;
         }
         if (isTextNode(node)) {
@@ -180,16 +183,18 @@ function highlight(regex, maxResults, highlightNode) {
         }
         return 0;
     }
-    highlightRecursive(highlightNode || document.getElementsByTagName('body')[0]);
+    highlightRecursive(highlightNode || document.body);
 };
 
 /* Remove all highlights from page */
 function removeHighlight() {
     while (node = document.body.querySelector(HIGHLIGHT_TAG + '.' + HIGHLIGHT_CLASS)) {
-        node.replaceWith(node.firstChild);
+        // node.replaceWith(node.firstChild);
+        node.outerText = node.outerText
     }
     while (node = document.body.querySelector(HIGHLIGHT_TAG + '.' + SELECTED_CLASS)) {
-        node.replaceWith(node.firstChild);
+        // node.replaceWith(node.firstChild);
+        node.outerText = node.outerText
     }
 };
 
@@ -265,12 +270,12 @@ function search(regexString, configurationChanged, highlightNode, keepHighlight)
     if (regex && regexString != '' && (configurationChanged || regexString !== searchInfo.regexString)) { // new valid regex string
         if(!keepHighlight){removeHighlight();}
         chrome.storage.local.get({
-                'highlightColor': DEFAULT_HIGHLIGHT_COLOR,
-                'selectedColor': DEFAULT_SELECTED_COLOR,
-                'textColor': DEFAULT_TEXT_COLOR,
-                'maxResults': DEFAULT_MAX_RESULTS,
-                'caseInsensitive': DEFAULT_CASE_INSENSITIVE,
-                'unescapeURL': DEFAULT_UNESCAPE_URL
+                highlightColor: DEFAULT_HIGHLIGHT_COLOR,
+                selectedColor: DEFAULT_SELECTED_COLOR,
+                textColor: DEFAULT_TEXT_COLOR,
+                maxResults: DEFAULT_MAX_RESULTS,
+                caseInsensitive: DEFAULT_CASE_INSENSITIVE,
+                unescapeURL: DEFAULT_UNESCAPE_URL
             },
             function(result) {
                 initSearchInfo(regexString);
@@ -289,9 +294,9 @@ function search(regexString, configurationChanged, highlightNode, keepHighlight)
         );
     } else if (regex && regexString != '' && regexString === searchInfo.regexString) { // elements are already highlighted
         chrome.storage.local.get({
-                'highlightColor': DEFAULT_HIGHLIGHT_COLOR,
-                'selectedColor': DEFAULT_SELECTED_COLOR,
-                'unescapeURL': DEFAULT_UNESCAPE_URL
+                highlightColor: DEFAULT_HIGHLIGHT_COLOR,
+                selectedColor: DEFAULT_SELECTED_COLOR,
+                unescapeURL: DEFAULT_UNESCAPE_URL
             },
             function(result) {
                 selectNextNode(result.highlightColor, result.selectedColor);
@@ -314,9 +319,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     /* Received selectNextNode message, select next regex match */
     else if ('selectNextNode' == request.message) {
         chrome.storage.local.get({
-                'highlightColor': DEFAULT_HIGHLIGHT_COLOR,
-                'selectedColor': DEFAULT_SELECTED_COLOR,
-                'unescapeURL': DEFAULT_UNESCAPE_URL
+                highlightColor: DEFAULT_HIGHLIGHT_COLOR,
+                selectedColor: DEFAULT_SELECTED_COLOR,
+                unescapeURL: DEFAULT_UNESCAPE_URL
             },
             function(result) {
                 selectNextNode(result.highlightColor, result.selectedColor);
@@ -326,9 +331,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     /* Received selectPrevNode message, select previous regex match */
     else if ('selectPrevNode' == request.message) {
         chrome.storage.local.get({
-                'highlightColor': DEFAULT_HIGHLIGHT_COLOR,
-                'selectedColor': DEFAULT_SELECTED_COLOR,
-                'unescapeURL': DEFAULT_UNESCAPE_URL
+                highlightColor: DEFAULT_HIGHLIGHT_COLOR,
+                selectedColor: DEFAULT_SELECTED_COLOR,
+                unescapeURL: DEFAULT_UNESCAPE_URL
             },
             function(result) {
                 selectPrevNode(result.highlightColor, result.selectedColor);
