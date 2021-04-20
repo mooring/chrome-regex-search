@@ -166,7 +166,9 @@ function highlight(regex, maxResults, highlightNode) {
                     try {
                         spanNode.textContent = decodeURIComponent(spanNode.textContent)
                     } catch (e) {
-                        console.error(e)
+                        try{
+                            spanNode.textContent = unescape(spanNode.textContent)
+                        }catch(e){}
                     }
                 }
                 matchedTextNode.parentNode.replaceChild(spanNode, matchedTextNode);

@@ -47,5 +47,5 @@
    "name": "Colorful Search Results with RegExp",
    "options_page": "options.html",
    "permissions": [ "activeTab", "storage" ],
-   "version": "2.0.1"
+   "version": "2.0.3"
 }
