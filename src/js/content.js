@@ -158,7 +158,10 @@ function highlight(regex, maxResults, highlightNode) {
                 spanNode.className = HIGHLIGHT_CLASS;
                 spanNode.style.backgroundColor = color[0]; // highlightColor;
                 spanNode.style.color = color[1];
-                if(!isurl){spanNode.style.padding = '3px';}
+                if(!isurl){
+                    spanNode.style.padding = '3px';
+                    spanNode.style.display = 'inline-block';
+                }
                 spanNode.colors = color;
                 spanNode.appendChild(matchedTextNode.cloneNode(true));
                 if (isurl) {
