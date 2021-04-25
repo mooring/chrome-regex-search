@@ -14,6 +14,7 @@ var CLEAR_ALL_HISTORY_TEXT = "Clear History";
 var DEFAULT_CASE_INSENSITIVE = false;
 var DEFAULT_UNESCAPE_URL = false;
 var MAX_HISTORY_LENGTH = 10000;
+var chrome = chrome || browser;
 /*** CONSTANTS ***/
 
 /*** VARIABLES ***/

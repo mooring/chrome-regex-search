@@ -15,8 +15,13 @@
          "72": "icons/icons_72.png",
          "96": "icons/icons_96.png"
       },
+      "browser_style": true,
+      "default_title": "Colorful Search Results with RegExp",
       "default_popup": "popup.html"
    },
+   "options_ui": {
+    "page": "options.html"
+  },
    "commands": {
       "_execute_browser_action": {
          "suggested_key": {
@@ -24,7 +29,8 @@
             "linux": "Ctrl+Shift+F",
             "mac": "Command+Shift+F",
             "windows": "Ctrl+Shift+F"
-         }
+        },
+        "description": "open search popup"
       }
    },
    "content_scripts": [ {
@@ -46,6 +52,6 @@
    "manifest_version": 2,
    "name": "Colorful Search Results with RegExp",
    "options_page": "options.html",
-   "permissions": [ "activeTab", "storage" ],
-   "version": "2.0.3"
+   "permissions": [ "storage","clipboardWrite"],
+   "version": "2.0.6"
 }
