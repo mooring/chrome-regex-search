@@ -279,6 +279,7 @@ document.getElementById('unescape').addEventListener('click', function() {
 });
 
 
+/*
 document.getElementById('copy-to-clipboard').addEventListener('click', function() {
     chrome.tabs.query({
             'active': true,
@@ -292,6 +293,7 @@ document.getElementById('copy-to-clipboard').addEventListener('click', function(
             }
         });
 });
+*/
 document.getElementById('unescape').addEventListener('click', function() {
     chrome.tabs.query({
             'active': true,

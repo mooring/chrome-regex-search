@@ -52,6 +52,6 @@
    "manifest_version": 2,
    "name": "Colorful Search Results with RegExp",
    "options_page": "options.html",
-   "permissions": [ "storage","clipboardWrite"],
-   "version": "2.0.6"
+   "permissions": [ "storage"],
+   "version": "2.0.8"
 }
